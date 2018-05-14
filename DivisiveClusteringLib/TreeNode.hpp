@@ -37,6 +37,17 @@ public:
         m_left = std::move(left);
     }
 
+    friend bool operator==(const TreeNode& left, const TreeNode& right)
+    {
+        return left.m_data == right.m_data
+                && (!left.m_left && !right.m_left
+                    || (left.m_left && right.m_left
+                        && *left.m_left.get() == *right.m_left.get()))
+                && (!left.m_right && !right.m_right
+                    || (left.m_right && right.m_right
+                        && *left.m_right.get() == *right.m_right.get()));
+    }
+
 private:
     std::unordered_set<T> m_data;
     std::unique_ptr<TreeNode> m_right;

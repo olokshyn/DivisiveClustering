@@ -11,7 +11,8 @@ class ClusteringTest : public QObject
     Q_OBJECT
 
 private slots:
-    void ClusteringOnePoint();
+    void Clustering();
+    void Clustering_data();
 };
 
 #endif // CLUSTERINGTEST_HPP

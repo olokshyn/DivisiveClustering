@@ -13,10 +13,17 @@ public:
     explicit Tree(std::unordered_set<T> data)
         : m_root(new TreeNode<T>(std::move(data)))
     {}
-#pragma once
+
     TreeNode<T>* root()
     {
         return m_root.get();
+    }
+
+    friend bool operator==(const Tree& left, const Tree& right)
+    {
+        return !left.m_root && !right.m_root
+                || (left.m_root && right.m_root
+                    && *left.m_root == *right.m_root);
     }
 
 private:
