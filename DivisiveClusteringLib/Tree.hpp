@@ -18,6 +18,10 @@ public:
     {
         return m_root.get();
     }
+    const TreeNode<T>* root() const
+    {
+        return m_root.get();
+    }
 
     friend bool operator==(const Tree& left, const Tree& right)
     {

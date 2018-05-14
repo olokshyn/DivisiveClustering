@@ -23,7 +23,15 @@ public:
     {
         return m_right.get();
     }
+    const TreeNode* right() const
+    {
+        return m_right.get();
+    }
     TreeNode* left()
+    {
+        return m_left.get();
+    }
+    const TreeNode* left() const
     {
         return m_left.get();
     }

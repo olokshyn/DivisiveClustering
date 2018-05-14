@@ -30,7 +30,8 @@ HEADERS += \
     Hash.hpp \
     Tree.hpp \
     TreeNode.hpp \
-    Clustering.hpp
+    Clustering.hpp \
+    TreeUtils.hpp
 unix {
     target.path = /usr/lib
     INSTALLS += target

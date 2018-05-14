@@ -7,30 +7,11 @@
 #include <QMetaType>
 
 #include "Tree.hpp"
+#include "TreeUtils.hpp"
 
 Q_DECLARE_METATYPE(std::shared_ptr<Tree<size_t>>)
 
-namespace
-{
-
-std::unordered_set<size_t> convert_to_indices(const std::vector<data_t>& data)
-{
-    std::unordered_set<size_t> result;
-    result.reserve(data.size());
-    for (size_t i = 0; i != data.size(); ++i)
-    {
-        result.insert(i);
-    }
-    return result;
-}
-
-template <typename ...Args>
-inline std::unique_ptr<TreeNode<size_t>> indices_to_TreeNode(Args ...args)
-{
-    return std::make_unique<TreeNode<size_t>>(std::unordered_set<size_t>{args...});
-}
-
-}
+using namespace TreeUtils;
 
 void ClusteringTest::Clustering()
 {

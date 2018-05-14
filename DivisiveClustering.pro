@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     DivisiveClusteringLib \
-    DivisiveClusteringTests
+    DivisiveClusteringTests \
+    GUI
