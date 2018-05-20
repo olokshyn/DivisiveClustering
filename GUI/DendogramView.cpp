@@ -80,7 +80,7 @@ void DendogramView::draw_dendogram()
     QPainter painter(&m_canvas);
     painter.setRenderHint(QPainter::Antialiasing, true);
     painter.setPen(QPen(Qt::black, 3, Qt::SolidLine));
-    painter.setBrush(QBrush(Qt::green, Qt::SolidPattern));
+    painter.setBrush(QBrush(QColor::fromRgb(255, 160, 50), Qt::SolidPattern));
 
     draw_node(painter,
               m_indices_tree->root(),
@@ -122,11 +122,12 @@ void DendogramView::draw_node(QPainter& painter,
                 node_width, node_height);
     ++nodes_drawn[level];
 
-    QString title;
+    QString title = "{ ";
     for (size_t index : node->data())
     {
-        title += QString::number(index) + " ";
+        title += QString::number(index) + ", ";
     }
+    title += "}";
     painter.drawText(node_offset_x, node_offset_y,
                      node_width, node_height,
                      Qt::AlignCenter, title);
