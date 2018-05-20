@@ -104,23 +104,32 @@ void DendogramView::draw_node(QPainter& painter,
     int node_offset_x = g_offset + (block_hor_offset + node_width) * nodes_drawn[level] + block_hor_offset / 2;
     int node_offset_y = g_offset + (block_vert_offset + node_height) * level + block_vert_offset / 2;
 
+    int node_x = node_offset_x + node_width / 2;
+    int node_y = node_offset_y + node_height / 2;
+    if (parent_node_x >= 0 && parent_node_y >= 0)
+    {
+    //        const int width_diff = parent_node_x <= node_x ? node_width / 2 : -node_width / 2;
+    //        painter.drawLine(parent_node_x + width_diff, parent_node_y,
+    //                         node_x, parent_node_y);
+    //        painter.drawLine(node_x, parent_node_y,
+    //                         node_x, node_y - node_height / 2);
+        painter.drawLine(parent_node_x, parent_node_y + node_height / 2, node_x, node_y - node_height / 2);
+    }
+
     painter.drawRect(
                 node_offset_x,
                 node_offset_y,
                 node_width, node_height);
     ++nodes_drawn[level];
 
-    int node_x = node_offset_x + node_width / 2;
-    int node_y = node_offset_y + node_height / 2;
-    if (parent_node_x >= 0 && parent_node_y >= 0)
+    QString title;
+    for (size_t index : node->data())
     {
-//        const int width_diff = parent_node_x <= node_x ? node_width / 2 : -node_width / 2;
-//        painter.drawLine(parent_node_x + width_diff, parent_node_y,
-//                         node_x, parent_node_y);
-//        painter.drawLine(node_x, parent_node_y,
-//                         node_x, node_y - node_height / 2);
-        painter.drawLine(parent_node_x, parent_node_y, node_x, node_y);
+        title += QString::number(index) + " ";
     }
+    painter.drawText(node_offset_x, node_offset_y,
+                     node_width, node_height,
+                     Qt::AlignCenter, title);
 
     if (node->left())
     {
