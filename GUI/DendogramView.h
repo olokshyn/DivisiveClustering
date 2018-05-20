@@ -31,13 +31,18 @@ protected:
 private:
     void update();
     void draw_dendogram();
+    int get_tree_max_elements_count(const TreeNode<size_t>* root,
+                                    size_t levels_count);
+    int get_tree_width(const TreeNode<size_t>* root,
+                       size_t levels_count,
+                       int node_width);
     void draw_node(QPainter& painter,
                    const TreeNode<size_t>* node,
                    size_t level,
-                   const std::vector<size_t>& levels_width,
+                   size_t levels_count,
                    std::vector<size_t>& nodes_drawn,
                    int node_width, int node_height,
-                   int parent_node_x = -1, int parent_node_y = -1);
+                   int parent_node_x = -1, int parent_node_y = -1, bool left = true);
 
 private:
     std::shared_ptr<Tree<size_t>> m_indices_tree;

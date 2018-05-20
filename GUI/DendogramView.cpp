@@ -1,5 +1,7 @@
 #include "DendogramView.h"
 
+#include <cmath>
+
 #include <algorithm>
 
 #include <QPainter>
@@ -9,7 +11,7 @@
 
 using namespace TreeUtils;
 
-const int g_offset = 30;
+const int g_offset = 5;
 const int g_node_min_width = 50;
 const int g_node_max_width = 150;
 const int g_node_min_height = 50;
@@ -64,18 +66,16 @@ void DendogramView::update()
 
 void DendogramView::draw_dendogram()
 {
-    std::vector<size_t> levels_width = get_levels_width(*m_indices_tree);
-    Q_ASSERT(!levels_width.empty());
-    size_t max_level_width = *std::max_element(levels_width.begin(),
-                                               levels_width.end());
-    int node_width = (width() - 2 * g_offset) / static_cast<int>(max_level_width);
-    int node_height = (height() - 2 * g_offset) / static_cast<int>(levels_width.size());
+    size_t levels_count = get_levels_count(m_indices_tree->root());
+    size_t max_level_width = get_tree_max_elements_count(m_indices_tree->root(), levels_count);
+    int node_width = (width() - (static_cast<int>(max_level_width) + 1) * g_offset) / static_cast<int>(max_level_width);
+    int node_height = (height() - (static_cast<int>(levels_count) + 1) * g_offset) / static_cast<int>(levels_count);
     node_width = std::max(std::min(node_width, g_node_max_width), g_node_min_width);
     node_height = std::max(std::min(node_height, g_node_max_height), g_node_min_height);
-    setMinimumWidth(static_cast<int>(max_level_width) * g_node_min_width + 2 * g_offset);
-    setMinimumHeight(static_cast<int>(levels_width.size()) * g_node_min_height + 2 * g_offset);
+    setMinimumWidth(static_cast<int>(max_level_width) * g_node_min_width + (static_cast<int>(max_level_width) + 1) * g_offset);
+    setMinimumHeight(static_cast<int>(levels_count) * g_node_min_height + (static_cast<int>(levels_count) + 1) * g_offset);
 
-    std::vector<size_t> nodes_drawn(levels_width.size());
+    std::vector<size_t> nodes_drawn(levels_count);
 
     QPainter painter(&m_canvas);
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -85,36 +85,47 @@ void DendogramView::draw_dendogram()
     draw_node(painter,
               m_indices_tree->root(),
               0,
-              levels_width,
+              levels_count,
               nodes_drawn,
               node_width, node_height);
+}
+
+int DendogramView::get_tree_max_elements_count(const TreeNode<size_t>* root, size_t levels_count)
+{
+    return pow(2, levels_count - 1);
+}
+
+int DendogramView::get_tree_width(const TreeNode<size_t>* root, size_t levels_count, int node_width)
+{
+    return get_tree_max_elements_count(root, levels_count) * node_width;
 }
 
 void DendogramView::draw_node(QPainter& painter,
                               const TreeNode<size_t>* node,
                               size_t level,
-                              const std::vector<size_t>& levels_width,
+                              size_t levels_count,
                               std::vector<size_t>& nodes_drawn,
                               int node_width, int node_height,
-                              int parent_node_x, int parent_node_y)
+                              int parent_node_x, int parent_node_y, bool left)
 {
-    int block_hor_offset = (width() - 2 * g_offset) / levels_width[level] - node_width;
-    int block_vert_offset = (height() - 2 * g_offset) / levels_width.size() - node_height;
+    int node_x = (width() - 2 * g_offset) / 2;
+    int node_y = g_offset + node_height / 2;
 
-    int node_offset_x = g_offset + (block_hor_offset + node_width) * nodes_drawn[level] + block_hor_offset / 2;
-    int node_offset_y = g_offset + (block_vert_offset + node_height) * level + block_vert_offset / 2;
-
-    int node_x = node_offset_x + node_width / 2;
-    int node_y = node_offset_y + node_height / 2;
     if (parent_node_x >= 0 && parent_node_y >= 0)
     {
-    //        const int width_diff = parent_node_x <= node_x ? node_width / 2 : -node_width / 2;
-    //        painter.drawLine(parent_node_x + width_diff, parent_node_y,
-    //                         node_x, parent_node_y);
-    //        painter.drawLine(node_x, parent_node_y,
-    //                         node_x, node_y - node_height / 2);
-        painter.drawLine(parent_node_x, parent_node_y + node_height / 2, node_x, node_y - node_height / 2);
+        int tree_width = get_tree_width(node, levels_count - level, node_width);
+        int offset = tree_width / 2 + g_offset;
+        node_x = left ? parent_node_x - offset : parent_node_x + offset;
+        node_y = parent_node_y + node_height + g_offset;
+        const int width_diff = left ? -node_width / 2 : node_width / 2;
+        painter.drawLine(parent_node_x + width_diff, parent_node_y,
+                         node_x, parent_node_y);
+        painter.drawLine(node_x, parent_node_y,
+                         node_x, node_y - node_height / 2);
     }
+
+    int node_offset_x = node_x - node_width / 2;
+    int node_offset_y = node_y - node_height / 2;
 
     painter.drawRect(
                 node_offset_x,
@@ -130,26 +141,26 @@ void DendogramView::draw_node(QPainter& painter,
     title += "}";
     painter.drawText(node_offset_x, node_offset_y,
                      node_width, node_height,
-                     Qt::AlignCenter, title);
+                     Qt::AlignCenter | Qt::TextWordWrap, title);
 
     if (node->left())
     {
         draw_node(painter,
                   node->left(),
                   level + 1,
-                  levels_width,
+                  levels_count,
                   nodes_drawn,
                   node_width, node_height,
-                  node_x, node_y);
+                  node_x, node_y, true);
     }
     if (node->right())
     {
         draw_node(painter,
                   node->right(),
                   level + 1,
-                  levels_width,
+                  levels_count,
                   nodes_drawn,
                   node_width, node_height,
-                  node_x, node_y);
+                  node_x, node_y, false);
     }
 }

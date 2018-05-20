@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent),
       m_dendogram_view(new DendogramView(this))
 {
-    setGeometry(0, 0, 800, 600);
+    setGeometry(0, 0, 1200, 800);
 
     auto layout = new QGridLayout(this);
     auto button = new QPushButton(this);

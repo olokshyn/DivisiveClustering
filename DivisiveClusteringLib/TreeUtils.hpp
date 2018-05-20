@@ -29,14 +29,6 @@ namespace __
 {
 
 template <typename T>
-size_t get_levels_count(const TreeNode<T>* root)
-{
-    size_t left_levels_count = root->left() ? get_levels_count<T>(root->left()) : 0;
-    size_t right_levels_count = root->right() ? get_levels_count<T>(root->right()) : 0;
-    return 1 + std::max(left_levels_count, right_levels_count);
-}
-
-template <typename T>
 void get_levels_width(const TreeNode<T>* root,
                       size_t level, std::vector<size_t>& levels_width)
 {
@@ -55,9 +47,17 @@ void get_levels_width(const TreeNode<T>* root,
 }
 
 template <typename T>
+size_t get_levels_count(const TreeNode<T>* root)
+{
+    size_t left_levels_count = root->left() ? get_levels_count<T>(root->left()) : 0;
+    size_t right_levels_count = root->right() ? get_levels_count<T>(root->right()) : 0;
+    return 1 + std::max(left_levels_count, right_levels_count);
+}
+
+template <typename T>
 inline std::vector<size_t> get_levels_width(const Tree<T>& tree)
 {
-    size_t levels_count = __::get_levels_count<T>(tree.root());
+    size_t levels_count = get_levels_count<T>(tree.root());
     std::vector<size_t> levels_width(levels_count);
     __::get_levels_width<T>(tree.root(), 0, levels_width);
     return levels_width;
