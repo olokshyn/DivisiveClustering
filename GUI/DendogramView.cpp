@@ -12,10 +12,10 @@
 using namespace TreeUtils;
 
 const int g_offset = 10;
-const int g_node_min_width = 50;
-const int g_node_max_width = 150;
-const int g_node_min_height = 50;
-const int g_node_max_height = 150;
+const int g_node_min_width = 100;
+const int g_node_max_width = 200;
+const int g_node_min_height = 100;
+const int g_node_max_height = 200;
 
 DendogramView::DendogramView(QWidget *parent) :
     QWidget(parent),
@@ -54,11 +54,14 @@ void DendogramView::resizeEvent(QResizeEvent* event)
 
 void DendogramView::update()
 {
-    m_canvas = QImage(width(), height(), QImage::Format_RGBA8888);
-    m_canvas.fill(Qt::white);
     if (m_indices_tree)
     {
         draw_dendogram();
+    }
+    else
+    {
+        m_canvas = QImage(width(), height(), QImage::Format_RGBA8888);
+        m_canvas.fill(Qt::white);
     }
     m_framebuffer_is_invalid = true;
     repaint();
@@ -72,8 +75,12 @@ void DendogramView::draw_dendogram()
     int node_height = (height() - (static_cast<int>(levels_count) + 1) * g_offset) / static_cast<int>(levels_count);
     node_width = std::max(std::min(node_width, g_node_max_width), g_node_min_width);
     node_height = std::max(std::min(node_height, g_node_max_height), g_node_min_height);
-    setMinimumWidth(static_cast<int>(max_level_width) * g_node_min_width + (static_cast<int>(max_level_width) + 1) * g_offset);
-    setMinimumHeight(static_cast<int>(levels_count) * g_node_min_height + (static_cast<int>(levels_count) + 1) * g_offset);
+    int widget_width = static_cast<int>(max_level_width) * node_width + (static_cast<int>(max_level_width) + 1) * g_offset;
+    int widget_height = static_cast<int>(levels_count) * node_height + (static_cast<int>(levels_count) + 1) * g_offset;
+    setGeometry(0, 0, widget_width, widget_height);
+
+    m_canvas = QImage(widget_width, widget_height, QImage::Format_RGBA8888);
+    m_canvas.fill(Qt::white);
 
     std::vector<size_t> nodes_drawn(levels_count);
 
@@ -86,7 +93,6 @@ void DendogramView::draw_dendogram()
               m_indices_tree->root(),
               0,
               levels_count,
-              nodes_drawn,
               node_width, node_height);
 }
 
@@ -104,7 +110,6 @@ void DendogramView::draw_node(QPainter& painter,
                               const TreeNode<size_t>* node,
                               size_t level,
                               size_t levels_count,
-                              std::vector<size_t>& nodes_drawn,
                               int node_width, int node_height,
                               int parent_node_x, int parent_node_y, bool left)
 {
@@ -131,7 +136,6 @@ void DendogramView::draw_node(QPainter& painter,
                 node_offset_x,
                 node_offset_y,
                 node_width, node_height);
-    ++nodes_drawn[level];
 
     QString title = "{ ";
     for (size_t index : node->data())
@@ -149,7 +153,6 @@ void DendogramView::draw_node(QPainter& painter,
                   node->left(),
                   level + 1,
                   levels_count,
-                  nodes_drawn,
                   node_width, node_height,
                   node_x, node_y, true);
     }
@@ -159,7 +162,6 @@ void DendogramView::draw_node(QPainter& painter,
                   node->right(),
                   level + 1,
                   levels_count,
-                  nodes_drawn,
                   node_width, node_height,
                   node_x, node_y, false);
     }

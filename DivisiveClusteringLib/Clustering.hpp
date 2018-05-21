@@ -1,6 +1,7 @@
 #ifndef CLUSTERING_HPP
 #define CLUSTERING_HPP
 
+#include <memory>
 #include <vector>
 #include <algorithm>
 
@@ -67,14 +68,14 @@ void divide_node(TreeNode<size_t>* node, const DistanceNorm& d, const DistancePo
 }
 
 template <typename T, typename DistanceNorm, typename DistancePolicy>
-Tree<size_t> clustering(const std::vector<T>& data)
+std::unique_ptr<Tree<size_t>> clustering(const std::vector<T>& data)
 {
     DistanceNorm d(data);
     DistancePolicy d_policy(d, data);
 
-    Tree<size_t> tree(set_of_indexes(data.size()));
+    std::unique_ptr<Tree<size_t>> tree = std::make_unique<Tree<size_t>>(set_of_indexes(data.size()));
 
-    divide_node<T, DistanceNorm, DistancePolicy>(tree.root(), d, d_policy);
+    divide_node<T, DistanceNorm, DistancePolicy>(tree->root(), d, d_policy);
 
     return tree;
 }
@@ -83,7 +84,7 @@ Tree<size_t> clustering(const std::vector<T>& data)
 #include "DistancePolicy.hpp"
 
 template <typename T>
-constexpr Tree<size_t> (*euclidean_middlelink_clustering)(const std::vector<T>& data) =
+constexpr std::unique_ptr<Tree<size_t>> (*euclidean_middlelink_clustering)(const std::vector<T>& data) =
         &clustering<T, EuclideanDistanceNorm<T>, MiddleLinkDistancePolicy<T, EuclideanDistanceNorm<T>>>;
 
 #endif

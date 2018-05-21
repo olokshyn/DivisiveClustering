@@ -40,7 +40,6 @@ private:
                    const TreeNode<size_t>* node,
                    size_t level,
                    size_t levels_count,
-                   std::vector<size_t>& nodes_drawn,
                    int node_width, int node_height,
                    int parent_node_x = -1, int parent_node_y = -1, bool left = true);
 

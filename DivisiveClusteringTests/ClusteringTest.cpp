@@ -19,7 +19,7 @@ void ClusteringTest::Clustering()
     QFETCH(std::shared_ptr<Tree<size_t>>, expected_tree);
 
     auto tree = euclidean_middlelink_clustering<std::vector<double>>(data);
-    QCOMPARE(*expected_tree, tree);
+    QCOMPARE(*expected_tree, *tree);
 }
 
 void ClusteringTest::Clustering_data()
