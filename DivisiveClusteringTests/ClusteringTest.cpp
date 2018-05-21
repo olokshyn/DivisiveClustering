@@ -34,16 +34,16 @@ void ClusteringTest::Clustering_data()
                     {1.0, 1.0, 1.0}
                 });
     tree.reset(new Tree<size_t>(convert_to_indices(data)));
-//    QTest::newRow("OnePoint") << data << tree;
+    QTest::newRow("OnePoint") << data << tree;
 
     data.assign({
                     {1.0, 1.0, 1.0},
                     {2.0, 2.0, 2.0}
                 });
     tree.reset(new Tree<size_t>(convert_to_indices(data)));
-    tree->root()->set_left(indices_to_TreeNode(1ul));
-    tree->root()->set_right(indices_to_TreeNode(0ul));
-//    QTest::newRow("TwoPoints") << data << tree;
+    tree->root()->set_left(indices_to_TreeNode(0ul));
+    tree->root()->set_right(indices_to_TreeNode(1ul));
+    QTest::newRow("TwoPoints") << data << tree;
 
     data.assign({
                     {1.0, 1.0, 1.0},
@@ -51,11 +51,11 @@ void ClusteringTest::Clustering_data()
                     {8.0, 8.0, 8.0}
                 });
     tree.reset(new Tree<size_t>(convert_to_indices(data)));
-    tree->root()->set_left(indices_to_TreeNode(2ul));
-    tree->root()->set_right(indices_to_TreeNode(0ul, 1ul));
-    tree->root()->right()->set_left(indices_to_TreeNode(0ul));
-    tree->root()->right()->set_right(indices_to_TreeNode(1ul));
-//    QTest::newRow("ThreePoints") << data << tree;
+    tree->root()->set_left(indices_to_TreeNode(0ul, 1ul));
+    tree->root()->set_right(indices_to_TreeNode(2ul));
+    tree->root()->left()->set_left(indices_to_TreeNode(1ul));
+    tree->root()->left()->set_right(indices_to_TreeNode(0ul));
+    QTest::newRow("ThreePoints") << data << tree;
 
     data.assign({
                     {1.0, 1.0, 1.0}, // 0
@@ -66,6 +66,7 @@ void ClusteringTest::Clustering_data()
                     {7.0, 7.0, 7.0}, // 5
                 });
     tree.reset(new Tree<size_t>(convert_to_indices(data)));
+
     tree->root()->set_left(indices_to_TreeNode(2ul, 3ul, 4ul, 5ul));
     tree->root()->set_right(indices_to_TreeNode(0ul, 1ul));
 
@@ -75,11 +76,11 @@ void ClusteringTest::Clustering_data()
     tree->root()->right()->set_left(indices_to_TreeNode(0ul));
     tree->root()->right()->set_right(indices_to_TreeNode(1ul));
 
-    tree->root()->left()->left()->set_left(indices_to_TreeNode(2ul, 5ul));
-    tree->root()->left()->left()->set_right(indices_to_TreeNode(4ul));
+    tree->root()->left()->left()->set_left(indices_to_TreeNode(2ul, 4ul));
+    tree->root()->left()->left()->set_right(indices_to_TreeNode(5ul));
 
     tree->root()->left()->left()->left()->set_left(indices_to_TreeNode(2ul));
-    tree->root()->left()->left()->left()->set_right(indices_to_TreeNode(5ul));
+    tree->root()->left()->left()->left()->set_right(indices_to_TreeNode(4ul));
 
     QTest::newRow("SixPoints") << data << tree;
 }

@@ -41,7 +41,7 @@ void divide_node(TreeNode<size_t>* node, const DistanceNorm& d, const DistancePo
     size_t index_to_move = *iter;
     double diff = d_policy(d, index_to_move, node->data());
 
-    while (diff >= 0 && old_cluster.size() > 1)
+    while (diff > 0 && old_cluster.size() > 1)
     {
         old_cluster.erase(index_to_move);
         new_cluster.insert(index_to_move);
@@ -58,8 +58,8 @@ void divide_node(TreeNode<size_t>* node, const DistanceNorm& d, const DistancePo
         diff = d_policy(d, index_to_move, old_cluster) - d_policy(d, index_to_move, new_cluster);
     }
 
-    node->set_left(std::make_unique<TreeNode<size_t>>(std::move(new_cluster)));
-    node->set_right(std::make_unique<TreeNode<size_t>>(std::move(old_cluster)));
+    node->set_left(std::make_unique<TreeNode<size_t>>(std::move(old_cluster)));
+    node->set_right(std::make_unique<TreeNode<size_t>>(std::move(new_cluster)));
 
     divide_node<T, DistanceNorm, DistancePolicy>(node->left(), d, d_policy);
     divide_node<T, DistanceNorm, DistancePolicy>(node->right(), d, d_policy);

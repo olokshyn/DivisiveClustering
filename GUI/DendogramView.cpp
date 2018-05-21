@@ -11,7 +11,7 @@
 
 using namespace TreeUtils;
 
-const int g_offset = 5;
+const int g_offset = 10;
 const int g_node_min_width = 50;
 const int g_node_max_width = 150;
 const int g_node_min_height = 50;
