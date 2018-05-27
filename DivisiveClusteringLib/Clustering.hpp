@@ -85,6 +85,6 @@ std::unique_ptr<Tree<size_t>> clustering(const std::vector<T>& data)
 
 template <typename T>
 constexpr std::unique_ptr<Tree<size_t>> (*euclidean_middlelink_clustering)(const std::vector<T>& data) =
-        &clustering<T, EuclideanDistanceNorm<T>, MiddleLinkDistancePolicy<T, EuclideanDistanceNorm<T>>>;
+        &clustering<T, CachingEuclideanDistanceNorm<T>, MiddleLinkDistancePolicy<T, CachingEuclideanDistanceNorm<T>>>;
 
 #endif

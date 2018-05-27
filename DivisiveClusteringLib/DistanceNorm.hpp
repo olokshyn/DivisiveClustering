@@ -6,11 +6,11 @@
 
 #include <vector>
 
-template <typename T>
-class EuclideanDistanceNorm
+template <typename T, size_t p>
+class MinkowskiDistanceNorm
 {
 public:
-    explicit EuclideanDistanceNorm(const std::vector<T>& data)
+    explicit MinkowskiDistanceNorm(const std::vector<T>& data)
         : m_data(data)
     {}
 
@@ -23,10 +23,11 @@ public:
         double result = 0.0;
         for (size_t i = 0; i != m_data[index_i].size(); ++i)
         {
-            result += pow(m_data[index_i][i] - m_data[index_j][i], 2.0);
+            result += pow(fabs(m_data[index_i][i] - m_data[index_j][i]),
+                          static_cast<double>(p));
         }
 
-        return sqrt(result);
+        return pow(result, 1 / static_cast<double>(p));
     }
 
     const std::vector<T>& data() const
@@ -34,8 +35,76 @@ public:
         return m_data;
     }
 
-public:
+private:
     const std::vector<T>& m_data;
 };
+
+template <typename T>
+using ManhattanDistanceNorm = MinkowskiDistanceNorm<T, 1>;
+
+template <typename T>
+using EuclideanDistanceNorm = MinkowskiDistanceNorm<T, 2>;
+
+template <typename T>
+class SquaredEuclideanDistanceNorm
+{
+public:
+    explicit SquaredEuclideanDistanceNorm(const std::vector<T>& data)
+        : m_norm(data)
+    {}
+
+    double operator()(size_t index_i, size_t index_j) const
+    {
+        return pow(m_norm(index_i, index_j), 2.0);
+    }
+
+    const std::vector<T>& data() const
+    {
+        return m_norm.data();
+    }
+
+private:
+    MinkowskiDistanceNorm<T, 2> m_norm;
+};
+
+template <typename T, typename DistanceNorm>
+class CachingDistanceNorm
+{
+public:
+    explicit CachingDistanceNorm(const std::vector<T>& data)
+        : m_norm(data),
+          m_cache(data.size(),
+                  std::vector<double>(data.size(), -1.0))
+    {}
+
+    double operator()(size_t index_i, size_t index_j) const
+    {
+        if (m_cache[index_i][index_j] < 0)
+        {
+            m_cache[index_i][index_j]
+                    = m_cache[index_j][index_i]
+                      = m_norm(index_i, index_j);
+        }
+        return m_cache[index_i][index_j];
+    }
+
+    const std::vector<T>& data() const
+    {
+        return m_norm.data();
+    }
+
+private:
+    DistanceNorm m_norm;
+    mutable std::vector<std::vector<double>> m_cache;
+};
+
+template <typename T>
+using CachingManhattanDistanceNorm = CachingDistanceNorm<T, ManhattanDistanceNorm<T>>;
+
+template <typename T>
+using CachingEuclideanDistanceNorm = CachingDistanceNorm<T, EuclideanDistanceNorm<T>>;
+
+template <typename T>
+using CachingSquaredEuclideanDistanceNorm = CachingDistanceNorm<T, SquaredEuclideanDistanceNorm<T>>;
 
 #endif
