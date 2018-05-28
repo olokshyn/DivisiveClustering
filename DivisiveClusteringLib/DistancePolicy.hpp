@@ -1,6 +1,8 @@
 #ifndef DISTANCEPOLICY_HPP
 #define DISTANCEPOLICY_HPP
 
+#include <cassert>
+
 #include <vector>
 #include <unordered_set>
 
@@ -50,6 +52,89 @@ private:
             }
         }
         return sum;
+    }
+};
+
+template <typename T, typename DistanceNorm>
+class DistantNeighborDistancePolicy
+{
+public:
+    explicit DistantNeighborDistancePolicy(const DistanceNorm& d,
+                                           const std::vector<T>& data)
+    {}
+
+    double operator()(const DistanceNorm& d,
+                      size_t obj_index,
+                      const std::unordered_set<size_t>& cluster) const
+    {
+        return d(obj_index, max_distance_index(d, obj_index, cluster));
+    }
+
+    double operator()(const DistanceNorm& d,
+                      std::unordered_set<size_t> cluster_a,
+                      std::unordered_set<size_t> cluster_b) const
+    {
+        auto iter = std::max_element(cluster_a.begin(), cluster_a.end(),
+                                     [&d, &cluster_b](size_t left, size_t right) ->
+                                     bool { return max_distance_index(d, left, cluster_b)
+                                                   < max_distance_index(d, right, cluster_b); });
+        assert(iter);
+        return max_distance_index(d, *iter, cluster_b);
+    }
+
+private:
+    size_t max_distance_index(const DistanceNorm& d,
+                              size_t obj_index,
+                              const std::unordered_set<size_t>& cluster)
+    {
+        auto iter = max_element(cluster.begin(), cluster.end(),
+                                [&d, obj_index](size_t left, size_t right) ->
+                                bool { return d(obj_index, left) < d(obj_index, right); });
+        assert(iter);
+        return *iter;
+    }
+};
+
+template <typename T, typename DistanceNorm>
+class MedianDistancePolicy
+{
+public:
+    explicit MedianDistancePolicy(const DistanceNorm& d,
+                                  const std::vector<T>& data)
+    {}
+
+    double operator()(const DistanceNorm& d,
+                      size_t obj_index,
+                      const std::unordered_set<size_t>& cluster) const
+    {
+        return d(d.data()[obj_index], get_cluster_center(d.data(), cluster));
+    }
+
+    double operator()(const DistanceNorm& d,
+                      std::unordered_set<size_t> cluster_a,
+                      std::unordered_set<size_t> cluster_b) const
+    {
+        return d(get_cluster_center(d.data(), cluster_a),
+                 get_cluster_center(d.data(), cluster_b));
+    }
+
+private:
+    std::vector<double> get_cluster_center(const std::vector<T>& data,
+                                           const std::unordered_set<size_t>& cluster)
+    {
+        assert(data.empty());
+        size_t components_count = data.first().size();
+        std::vector<double> center(components_count, 0.0);
+
+        for (size_t index : cluster)
+        {
+            for (size_t i = 0; i != components_count; ++i)
+            {
+                center[i] += data[index][i] / cluster.size();
+            }
+        }
+
+        return center;
     }
 };
 

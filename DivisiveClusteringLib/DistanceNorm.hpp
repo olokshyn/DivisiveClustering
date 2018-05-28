@@ -14,20 +14,25 @@ public:
         : m_data(data)
     {}
 
+    double operator()(const T& a, const T& b) const
+    {
+        double result = 0.0;
+        for (size_t i = 0; i != a.size(); ++i)
+        {
+            result += pow(fabs(a[i] - b[i]),
+                          static_cast<double>(p));
+        }
+
+        return pow(result, 1 / static_cast<double>(p));
+    }
+
     double operator()(size_t index_i, size_t index_j) const
     {
         assert(index_i < m_data.size());
         assert(index_j < m_data.size());
         assert(m_data[index_i].size() == m_data[index_j].size());
 
-        double result = 0.0;
-        for (size_t i = 0; i != m_data[index_i].size(); ++i)
-        {
-            result += pow(fabs(m_data[index_i][i] - m_data[index_j][i]),
-                          static_cast<double>(p));
-        }
-
-        return pow(result, 1 / static_cast<double>(p));
+        return operator()(m_data[index_i], m_data[index_j]);
     }
 
     const std::vector<T>& data() const
@@ -53,6 +58,11 @@ public:
         : m_norm(data)
     {}
 
+    double operator()(const T& a, const T& b)
+    {
+        return pow(m_norm(a, b), 2.0);
+    }
+
     double operator()(size_t index_i, size_t index_j) const
     {
         return pow(m_norm(index_i, index_j), 2.0);
@@ -76,6 +86,11 @@ public:
           m_cache(data.size(),
                   std::vector<double>(data.size(), -1.0))
     {}
+
+    double operator()(const T& a, const T& b) const
+    {
+        return m_norm(a, b);
+    }
 
     double operator()(size_t index_i, size_t index_j) const
     {

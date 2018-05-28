@@ -31,7 +31,8 @@ SOURCES += \
     TreeTest.cpp \
     main.cpp \
     Staff.cpp \
-    DistanceNormTest.cpp
+    DistanceNormTest.cpp \
+    DistancePolicyTest.cpp
 
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
@@ -40,7 +41,8 @@ HEADERS += \
     TreeNodeTest.hpp \
     TreeTest.hpp \
     Staff.hpp \
-    DistanceNormTest.hpp
+    DistanceNormTest.hpp \
+    DistancePolicyTest.hpp
 
 win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../DivisiveClusteringLib/release/ -lDivisiveClusteringLib
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../DivisiveClusteringLib/debug/ -lDivisiveClusteringLib
