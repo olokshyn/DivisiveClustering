@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <unordered_set>
+#include <algorithm>
 
 template <typename T, typename DistanceNorm>
 class MiddleLinkDistancePolicy
@@ -77,7 +78,7 @@ public:
         auto iter = std::max_element(cluster_a.begin(), cluster_a.end(),
                                      [&d, &cluster_b](size_t left, size_t right) ->
                                      bool { return max_distance_index(d, left, cluster_b)
-                                                   < max_distance_index(d, right, cluster_b); });
+                    < max_distance_index(d, right, cluster_b); });
         assert(iter);
         return max_distance_index(d, *iter, cluster_b);
     }
@@ -85,12 +86,12 @@ public:
 private:
     size_t max_distance_index(const DistanceNorm& d,
                               size_t obj_index,
-                              const std::unordered_set<size_t>& cluster)
+                              const std::unordered_set<size_t>& cluster) const
     {
-        auto iter = max_element(cluster.begin(), cluster.end(),
-                                [&d, obj_index](size_t left, size_t right) ->
-                                bool { return d(obj_index, left) < d(obj_index, right); });
-        assert(iter);
+        auto iter = std::max_element(cluster.begin(), cluster.end(),
+                                     [&d, obj_index](size_t left, size_t right) ->
+                                     bool { return d(obj_index, left) < d(obj_index, right); });
+        assert(iter != cluster.end());
         return *iter;
     }
 };
@@ -120,10 +121,10 @@ public:
 
 private:
     std::vector<double> get_cluster_center(const std::vector<T>& data,
-                                           const std::unordered_set<size_t>& cluster)
+                                           const std::unordered_set<size_t>& cluster) const
     {
-        assert(data.empty());
-        size_t components_count = data.first().size();
+        assert(!data.empty());
+        size_t components_count = data.front().size();
         std::vector<double> center(components_count, 0.0);
 
         for (size_t index : cluster)

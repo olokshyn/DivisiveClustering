@@ -113,6 +113,9 @@ private:
     mutable std::vector<std::vector<double>> m_cache;
 };
 
+template <typename T, size_t p>
+using CachingMinkowskiDistanceNorm = CachingDistanceNorm<T, MinkowskiDistanceNorm<T, p>>;
+
 template <typename T>
 using CachingManhattanDistanceNorm = CachingDistanceNorm<T, ManhattanDistanceNorm<T>>;
 

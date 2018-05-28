@@ -25,6 +25,9 @@ MainWindow::MainWindow(QWidget *parent)
     showMaximized();
 }
 
+template <typename T>
+using CachingMinkowskiDistanceNorm4 = CachingMinkowskiDistanceNorm<T, 4>;
+
 void MainWindow::draw_tree()
 {
     std::vector<std::vector<double>> data = {
@@ -49,5 +52,8 @@ void MainWindow::draw_tree()
         {27.6, 25.42, 79.9, 10.2, 25.4},  // 17
         {33.2, 53.13, 11.2, 3.4,  17}     // 18
     };
-    m_dendogram_view->draw_tree(euclidean_middlelink_clustering<std::vector<double>>(data));
+    m_dendogram_view->draw_tree(
+                CLUSTERING(std::vector<double>,
+                           CachingEuclideanDistanceNorm,
+                           MiddleLinkDistancePolicy)(data));
 }

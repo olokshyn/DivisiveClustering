@@ -80,11 +80,14 @@ std::unique_ptr<Tree<size_t>> clustering(const std::vector<T>& data)
     return tree;
 }
 
+#define CLUSTERING(T, DISTANCE_NORM, DISTANCE_POLICY) \
+    clustering<T, DISTANCE_NORM<T>, DISTANCE_POLICY<T, DISTANCE_NORM<T>>>
+
 #include "DistanceNorm.hpp"
 #include "DistancePolicy.hpp"
 
 template <typename T>
 constexpr std::unique_ptr<Tree<size_t>> (*euclidean_middlelink_clustering)(const std::vector<T>& data) =
-        &clustering<T, CachingEuclideanDistanceNorm<T>, MiddleLinkDistancePolicy<T, CachingEuclideanDistanceNorm<T>>>;
+        &CLUSTERING(T, CachingEuclideanDistanceNorm, MiddleLinkDistancePolicy);
 
 #endif
