@@ -25,8 +25,8 @@ public:
     }
 
     double operator()(const DistanceNorm& d,
-                      std::unordered_set<size_t> cluster_a,
-                      std::unordered_set<size_t> cluster_b) const
+                      const std::unordered_set<size_t>& cluster_a,
+                      const std::unordered_set<size_t>& cluster_b) const
     {
         double sum = 0.0;
         size_t distances_in_sum = 0;
@@ -72,8 +72,8 @@ public:
     }
 
     double operator()(const DistanceNorm& d,
-                      std::unordered_set<size_t> cluster_a,
-                      std::unordered_set<size_t> cluster_b) const
+                      const std::unordered_set<size_t>& cluster_a,
+                      const std::unordered_set<size_t>& cluster_b) const
     {
         auto iter = std::max_element(cluster_a.begin(), cluster_a.end(),
                                      [&d, &cluster_b](size_t left, size_t right) ->
@@ -108,12 +108,12 @@ public:
                       size_t obj_index,
                       const std::unordered_set<size_t>& cluster) const
     {
-        return d(d.data()[obj_index], get_cluster_center(d.data(), cluster));
+        return d(d.data()[obj_index], get_cluster_center(d.data(), cluster, obj_index));
     }
 
     double operator()(const DistanceNorm& d,
-                      std::unordered_set<size_t> cluster_a,
-                      std::unordered_set<size_t> cluster_b) const
+                      const std::unordered_set<size_t>& cluster_a,
+                      const std::unordered_set<size_t>& cluster_b) const
     {
         return d(get_cluster_center(d.data(), cluster_a),
                  get_cluster_center(d.data(), cluster_b));
@@ -121,18 +121,33 @@ public:
 
 private:
     std::vector<double> get_cluster_center(const std::vector<T>& data,
-                                           const std::unordered_set<size_t>& cluster) const
+                                           const std::unordered_set<size_t>& cluster,
+                                           size_t skip_obj_index = -1) const
     {
         assert(!data.empty());
         size_t components_count = data.front().size();
         std::vector<double> center(components_count, 0.0);
 
+        size_t cluster_size = 0;
         for (size_t index : cluster)
         {
+            if (skip_obj_index >= 0 && skip_obj_index == index)
+            {
+                continue;
+            }
             for (size_t i = 0; i != components_count; ++i)
             {
-                center[i] += data[index][i] / cluster.size();
+                center[i] += data[index][i];
             }
+            ++cluster_size;
+        }
+        if (cluster_size == 0)
+        {
+            return std::vector<double>(components_count, 0.0);
+        }
+        for (size_t i = 0; i != components_count; ++i)
+        {
+            center[i] /= cluster_size;
         }
 
         return center;

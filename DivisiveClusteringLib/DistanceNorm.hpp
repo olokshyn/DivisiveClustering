@@ -74,7 +74,7 @@ public:
     }
 
 private:
-    MinkowskiDistanceNorm<T, 2> m_norm;
+    EuclideanDistanceNorm<T> m_norm;
 };
 
 template <typename T, typename DistanceNorm>

@@ -73,7 +73,8 @@ std::unique_ptr<Tree<size_t>> clustering(const std::vector<T>& data)
     DistanceNorm d(data);
     DistancePolicy d_policy(d, data);
 
-    std::unique_ptr<Tree<size_t>> tree = std::make_unique<Tree<size_t>>(set_of_indexes(data.size()));
+    std::unique_ptr<Tree<size_t>> tree
+            = std::make_unique<Tree<size_t>>(set_of_indexes(data.size()));
 
     divide_node<T, DistanceNorm, DistancePolicy>(tree->root(), d, d_policy);
 
